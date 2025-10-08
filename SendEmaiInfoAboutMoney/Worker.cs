@@ -60,6 +60,7 @@ namespace SendEmaiInfoAboutMoney
             //caso seja a primeira vez apenas pegar o valor do dia da moeda
             decimal actualCurrency = 0;
 
+            await SendEmailAsync();
             try
             {
                 actualCurrency = await GetCurrencyRateFromEURToBRLAsync();
@@ -123,12 +124,21 @@ namespace SendEmaiInfoAboutMoney
 
         private async Task SendEmailAsync()
         {
+            DotNetEnv.Env.Load();
+
+            var fromAddressEnv = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL");
+            var toAddressEnv = Environment.GetEnvironmentVariable("SMTP_TO_EMAIL");
+            var fromPasswordEnv = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
 
 
-            var fromAddress = new MailAddress("lucasdetoffolsk8@gmail.com", "Cotação Euro");
-            var toAddress = new MailAddress("lucasdetoffollemos@gmail.com");
+            if(string.IsNullOrEmpty(fromAddressEnv)|| string.IsNullOrEmpty(toAddressEnv) || string.IsNullOrEmpty(fromPasswordEnv))
+            {
+                throw new InvalidOperationException("Values from env cannot be null");
+            }
+
+            var fromAddress = new MailAddress(fromAddressEnv, "Cotação Euro");
+            var toAddress = new MailAddress(toAddressEnv);
             const string fromPassword = "ofvd uxtm oqae ybpk";
-
 
             var subject = "COTAÇÃO EURO BAIXOU HOJE";
 
