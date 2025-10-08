@@ -138,7 +138,7 @@ namespace SendEmaiInfoAboutMoney
 
             var fromAddress = new MailAddress(fromAddressEnv, "Cotação Euro");
             var toAddress = new MailAddress(toAddressEnv);
-            const string fromPassword = "ofvd uxtm oqae ybpk";
+            var fromPassword = fromPasswordEnv;
 
             var subject = "COTAÇÃO EURO BAIXOU HOJE";
 
