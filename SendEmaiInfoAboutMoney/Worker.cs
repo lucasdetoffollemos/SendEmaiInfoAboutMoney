@@ -70,7 +70,6 @@ namespace SendEmaiInfoAboutMoney
                 throw;
             }
 
-
             if (oldCurrency == 0)
             {
                 _logger.LogInformation("The old currency is 0.");
