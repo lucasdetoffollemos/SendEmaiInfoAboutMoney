@@ -1,0 +1,16 @@
+# fly.toml app configuration file generated for sendemaiinfoaboutmoney on 2025-10-09T12:24:09-03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'sendemaiinfoaboutmoney'
+primary_region = 'cdg'
+
+[build]
+  dockerfile = "Dockerfile"
+
+[processes]
+  app = "dotnet SendEmaiInfoAboutMoney.dll"
+
+[[vm]]
+  size = 'shared-cpu-1x'

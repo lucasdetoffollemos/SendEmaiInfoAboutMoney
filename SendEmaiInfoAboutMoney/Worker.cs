@@ -60,7 +60,6 @@ namespace SendEmaiInfoAboutMoney
             //caso seja a primeira vez apenas pegar o valor do dia da moeda
             decimal actualCurrency = 0;
 
-            await SendEmailAsync();
             try
             {
                 actualCurrency = await GetCurrencyRateFromEURToBRLAsync();
