@@ -1,0 +1,29 @@
+name: Email Service Job
+
+on:
+  schedule:
+    # Every hour
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # allows manual trigger too
+
+jobs:
+  run-service:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x' # or whatever version you use
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run service
+        run: dotnet run --project SendEmaiInfoAboutMoney/SendEmaiInfoAboutMoney.csproj --configuration Release

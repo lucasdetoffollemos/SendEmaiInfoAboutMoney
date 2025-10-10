@@ -31,7 +31,7 @@ namespace SendEmaiInfoAboutMoney
             while (!stoppingToken.IsCancellationRequested)
             {
                 // calcula proxima 4:00 AM
-                var now = DateTime.UtcNow; ;
+               /* var now = DateTime.UtcNow; ;
                 var nextRun = new DateTime(now.Year, now.Month, now.Day, 8, 0, 0);
 
                 if (now > nextRun)
@@ -39,19 +39,20 @@ namespace SendEmaiInfoAboutMoney
 
                 var delay = nextRun - now;
 
-                _logger.LogInformation("Next run scheduled at: {time}", nextRun);
+                _logger.LogInformation("Next run scheduled at: {time}", nextRun);*/
 
 
                 try
                 {
-                    await CheckWhichNumberIsShorter();
+                    _logger.LogInformation("Im passing here. Hour: {hour}", DateTime.Now);
+                    //await CheckWhichNumberIsShorter();
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Erro while sending email, {ErrorMessage}", ex.Message);
                 }
 
-                await Task.Delay(delay, stoppingToken);
+               // await Task.Delay(delay, stoppingToken);
             }
         }
 
