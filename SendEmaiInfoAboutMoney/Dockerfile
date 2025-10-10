@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # copy and restore
-COPY . .
+COPY SendEmaiInfoAboutMoney.csproj ./
 RUN dotnet restore
 
 # copy the rest and publish
