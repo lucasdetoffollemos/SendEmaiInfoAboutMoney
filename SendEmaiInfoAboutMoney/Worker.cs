@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,15 +17,16 @@ namespace SendEmaiInfoAboutMoney
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
+        private readonly EmailSettings _settings;
 
         public static decimal oldCurrency = 0;
         public static decimal newCurrency = 0;
 
-        public Worker(ILogger<Worker> logger)
+        public Worker(ILogger<Worker> logger, IOptions<EmailSettings> settings)
         {
             _logger = logger;
+            _settings = settings.Value;
         }
-
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -48,7 +50,7 @@ namespace SendEmaiInfoAboutMoney
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Erro while sending email, {ErrorMessage}", ex.Message);
+                    _logger.LogError(ex, "Error while sending email, {ErrorMessage}", ex.Message);
                 }
 
                 await Task.Delay(delay, stoppingToken);
@@ -91,7 +93,7 @@ namespace SendEmaiInfoAboutMoney
             else
             {
                 //fazer pegar o valor do dia e armazenar
-                _logger.LogInformation("New currency is greater or equal than the old currency, just updating values");
+                _logger.LogInformation("New currency is greater or equal than the old currency, just updating value. Old value {oldValue}, new value {newValue}", oldCurrency, actualCurrency);
                 oldCurrency = actualCurrency;
             }
 
@@ -102,12 +104,13 @@ namespace SendEmaiInfoAboutMoney
             try
             {
                 using var httpClient = new HttpClient();
-                var url = "https://api.fastforex.io/fetch-one?from=EUR&to=BRL";
-                httpClient.DefaultRequestHeaders.Add("X-API-Key", "7ca41296d4-5ebad53b23-t3m8cd");
+
+                var url = $"https://api.currencyapi.com/v3/latest?apikey={_settings.ApiKey}&currencies=BRL&base_currency=EUR";
+
                 var response = await httpClient.GetStringAsync(url);
 
                 using var doc = JsonDocument.Parse(response);
-                var rate = doc.RootElement.GetProperty("result").GetProperty("BRL").GetDecimal();
+                var rate = doc.RootElement.GetProperty("data").GetProperty("BRL").GetProperty("value").GetDecimal();
 
                 return rate;
             }
@@ -122,21 +125,9 @@ namespace SendEmaiInfoAboutMoney
 
         private async Task SendEmailAsync()
         {
-            DotNetEnv.Env.Load();
-
-            var fromAddressEnv = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL");
-            var toAddressEnv = Environment.GetEnvironmentVariable("SMTP_TO_EMAIL");
-            var fromPasswordEnv = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
-
-
-            if(string.IsNullOrEmpty(fromAddressEnv)|| string.IsNullOrEmpty(toAddressEnv) || string.IsNullOrEmpty(fromPasswordEnv))
-            {
-                throw new InvalidOperationException("Values from env cannot be null");
-            }
-
-            var fromAddress = new MailAddress(fromAddressEnv, "Cotação Euro");
-            var toAddress = new MailAddress(toAddressEnv);
-            var fromPassword = fromPasswordEnv;
+            var fromAddress = new MailAddress(_settings.SmtpFromEmail, "Cotação Euro");
+            var toAddress = new MailAddress(_settings.SmtpToEmail);
+            var fromPassword = _settings.SmtpPassword;
 
             var subject = "COTAÇÃO EURO BAIXOU HOJE";
 
