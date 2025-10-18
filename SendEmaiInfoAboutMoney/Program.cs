@@ -23,6 +23,17 @@ namespace SendEmaiInfoAboutMoney
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<Worker>();
+
+                    DotNetEnv.Env.Load();
+
+                    // Register settings using Environment variables
+                    services.Configure<EmailSettings>(options =>
+                    {
+                        options.SmtpFromEmail = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL")!;
+                        options.SmtpToEmail = Environment.GetEnvironmentVariable("SMTP_TO_EMAIL")!;
+                        options.SmtpPassword = Environment.GetEnvironmentVariable("SMTP_PASSWORD")!;
+                        options.ApiKey = Environment.GetEnvironmentVariable("API_KEY")!;
+                    });
                 })
                 .ConfigureLogging(logging =>
                 {
