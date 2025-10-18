@@ -30,8 +30,7 @@ namespace SendEmaiInfoAboutMoney
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
-            {
+
                 // calcula proxima 4:00 AM
                /* var now = DateTime.UtcNow; ;
                 var nextRun = new DateTime(now.Year, now.Month, now.Day, 8, 0, 0);
@@ -46,7 +45,7 @@ namespace SendEmaiInfoAboutMoney
 
                 try
                 {
-                    _logger.LogInformation("Im passing here. Hour: {hour}", DateTime.Now);
+                    _logger.LogInformation("Im passing here NOW MANN. Hour: {hour}", DateTime.Now);
                     //await CheckWhichNumberIsShorter();
                 }
                 catch (Exception ex)
@@ -55,7 +54,7 @@ namespace SendEmaiInfoAboutMoney
                 }
 
                // await Task.Delay(delay, stoppingToken);
-            }
+            
         }
 
         private async Task CheckWhichNumberIsShorter()
