@@ -45,7 +45,7 @@ namespace SendEmaiInfoAboutMoney
 
                 try
                 {
-                    _logger.LogInformation("Im passing here. Hour: {hour}", DateTime.Now);
+                    _logger.LogInformation("Im passing here NOW MANN. Hour: {hour}", DateTime.Now);
                     //await CheckWhichNumberIsShorter();
                 }
                 catch (Exception ex)
