@@ -3,7 +3,7 @@ name: Email Service Job
 on:
   schedule:
     # Every hour
-    - cron: '*/10 * * * *'
+    - cron: '0 */8 * * *'
   workflow_dispatch: # allows manual trigger too
 
 jobs:
