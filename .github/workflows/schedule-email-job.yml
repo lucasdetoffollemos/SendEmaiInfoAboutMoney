@@ -1,6 +1,9 @@
 name: Email Service Job
 
 on:
+  push: 
+    branches:
+      - publish-with-github-actions
   schedule:
     # Every hour
     - cron: '*/10 * * * *'
