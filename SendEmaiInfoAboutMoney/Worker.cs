@@ -30,31 +30,16 @@ namespace SendEmaiInfoAboutMoney
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-
-                // calcula proxima 4:00 AM
-               /* var now = DateTime.UtcNow; ;
-                var nextRun = new DateTime(now.Year, now.Month, now.Day, 8, 0, 0);
-
-                if (now > nextRun)
-                    nextRun = nextRun.AddDays(1); // agenda pro proximo dia se ja passoi das 8 am
-
-                var delay = nextRun - now;
-
-                _logger.LogInformation("Next run scheduled at: {time}", nextRun);*/
-
-
-                try
-                {
-                    _logger.LogInformation("Im passing here NOW MANN. Hour: {hour}", DateTime.Now);
-                    //await CheckWhichNumberIsShorter();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error while sending email, {ErrorMessage}", ex.Message);
-                }
-
-               // await Task.Delay(delay, stoppingToken);
-            
+            try
+            {
+                _logger.LogInformation("Email from {emailFrom}", _settings.SmtpFromEmail);
+                _logger.LogInformation("Im passing here NOW MANN. Hour: {hour}", DateTime.Now);
+                await CheckWhichNumberIsShorter();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while sending email, {ErrorMessage}", ex.Message);
+            }
         }
 
         private async Task CheckWhichNumberIsShorter()
