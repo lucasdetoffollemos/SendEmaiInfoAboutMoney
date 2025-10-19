@@ -18,14 +18,16 @@ namespace SendEmaiInfoAboutMoney
     {
         private readonly ILogger<Worker> _logger;
         private readonly EmailSettings _settings;
+        private readonly IHostApplicationLifetime _lifetime;
 
         public static decimal oldCurrency = 0;
         public static decimal newCurrency = 0;
 
-        public Worker(ILogger<Worker> logger, IOptions<EmailSettings> settings)
+        public Worker(ILogger<Worker> logger, IOptions<EmailSettings> settings, IHostApplicationLifetime lifetime)
         {
             _logger = logger;
             _settings = settings.Value;
+            _lifetime = lifetime;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -53,7 +55,12 @@ namespace SendEmaiInfoAboutMoney
                     _logger.LogError(ex, "Error while sending email, {ErrorMessage}", ex.Message);
                 }
 
-               // await Task.Delay(delay, stoppingToken);
+            // await Task.Delay(delay, stoppingToken);
+
+            //parando aplicação
+
+            _logger.LogInformation("Stopping aplication");
+            _lifetime.StopApplication();
             
         }
 
