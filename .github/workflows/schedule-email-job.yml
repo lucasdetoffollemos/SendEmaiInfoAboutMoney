@@ -2,8 +2,8 @@ name: Email Service Job
 
 on:
   schedule:
-    # Every hour
-    - cron: '0 */8 * * *'
+    # vai rodar todo dia, exceto (domingo), as 8 da manhã em portugal (7 da manhã no utc)
+    - cron: '0 7 * * 1-6'
   workflow_dispatch: # allows manual trigger too
 
 jobs:

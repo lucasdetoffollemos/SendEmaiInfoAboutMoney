@@ -20,9 +20,6 @@ namespace SendEmaiInfoAboutMoney
         private readonly EmailSettings _settings;
         private readonly IHostApplicationLifetime _lifetime;
 
-        public static decimal oldCurrency = 0;
-        public static decimal newCurrency = 0;
-
         public Worker(ILogger<Worker> logger, IOptions<EmailSettings> settings, IHostApplicationLifetime lifetime)
         {
             _logger = logger;
@@ -32,78 +29,64 @@ namespace SendEmaiInfoAboutMoney
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-
-                // calcula proxima 4:00 AM
-               /* var now = DateTime.UtcNow; ;
-                var nextRun = new DateTime(now.Year, now.Month, now.Day, 8, 0, 0);
-
-                if (now > nextRun)
-                    nextRun = nextRun.AddDays(1); // agenda pro proximo dia se ja passoi das 8 am
-
-                var delay = nextRun - now;
-
-                _logger.LogInformation("Next run scheduled at: {time}", nextRun);*/
-
-
-                try
-                {
-                    _logger.LogInformation("Im passing here NOW MANN. Hour: {hour}", DateTime.Now);
-                    //await CheckWhichNumberIsShorter();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error while sending email, {ErrorMessage}", ex.Message);
-                }
-
-            // await Task.Delay(delay, stoppingToken);
-
-            //parando aplicação
-
-            _logger.LogInformation("Stopping aplication");
-            _lifetime.StopApplication();
-            
-        }
-
-        private async Task CheckWhichNumberIsShorter()
-        {
-            //caso seja a primeira vez apenas pegar o valor do dia da moeda
-            decimal actualCurrency = 0;
+            var dateTimeNow = DateTime.Now;
 
             try
             {
-                actualCurrency = await GetCurrencyRateFromEURToBRLAsync();
+                _logger.LogInformation("Im passing here NOW MANN. Hour: {hour}", dateTimeNow);
+                
+                await CheckWhichNumberIsShorter(dateTimeNow);
+
+                //await GetCurrencyRateYesterdayFromEURToBRLAsync(dateTimeNow);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while getting currency async. {ErrorMessage}", ex.Message);
+                _logger.LogError(ex, "Error while sending email, {ErrorMessage}", ex.Message);
+            }
+
+            //parando aplicação
+            _logger.LogInformation("Stopping aplication");
+            _lifetime.StopApplication();
+        }
+
+        private async Task CheckWhichNumberIsShorter(DateTime dateTime)
+        {
+            decimal todayCurrency = 0;
+
+            try
+            {
+                todayCurrency = await GetCurrencyRateFromEURToBRLAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while getting today currency async. {ErrorMessage}", ex.Message);
                 throw;
             }
 
-            if (oldCurrency == 0)
-            {
-                _logger.LogInformation("The old currency is 0.");
-                oldCurrency = actualCurrency;
-                return;
-            }
+            decimal yesterdayCurrency = 0;
 
-            newCurrency = actualCurrency;
+            try
+            {
+                yesterdayCurrency = await GetCurrencyRateYesterdayFromEURToBRLAsync(dateTime);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while getting yesterday currency async. {ErrorMessage}", ex.Message);
+                throw;
+            }
 
             //caso o valor antigo seja maior que o valor novo
             //mandar email
-            //setar o valor novo no antigo
-            if (oldCurrency > newCurrency)
+            if (yesterdayCurrency > todayCurrency)
             {
                 _logger.LogInformation("New currency is less than the old currency, sending email...");
-                await SendEmailAsync();
-                oldCurrency = newCurrency;
-            }
-            else
-            {
-                //fazer pegar o valor do dia e armazenar
-                _logger.LogInformation("New currency is greater or equal than the old currency, just updating value. Old value {oldValue}, new value {newValue}", oldCurrency, actualCurrency);
-                oldCurrency = actualCurrency;
-            }
 
+                await SendEmailAsync(todayCurrency, yesterdayCurrency, dateTime);
+
+                return;
+            }
+            
+            _logger.LogInformation("Today currency is greater or equal than the old currency, just updating value. Yesterady value {oldValue}, Today value {newValue}", yesterdayCurrency, todayCurrency);
         }
 
         private async Task<decimal> GetCurrencyRateFromEURToBRLAsync()
@@ -112,11 +95,11 @@ namespace SendEmaiInfoAboutMoney
             {
                 using var httpClient = new HttpClient();
 
-                var url = $"https://api.currencyapi.com/v3/latest?apikey={_settings.ApiKey}&currencies=BRL&base_currency=EUR";
+                var urlFromCurrenciToday = $"https://api.currencyapi.com/v3/latest?apikey={_settings.ApiKey}&currencies=BRL&base_currency=EUR";
 
-                var response = await httpClient.GetStringAsync(url);
+                var responseFromCurrenciToday = await httpClient.GetStringAsync(urlFromCurrenciToday);
 
-                using var doc = JsonDocument.Parse(response);
+                using var doc = JsonDocument.Parse(responseFromCurrenciToday);
                 var rate = doc.RootElement.GetProperty("data").GetProperty("BRL").GetProperty("value").GetDecimal();
 
                 return rate;
@@ -130,7 +113,35 @@ namespace SendEmaiInfoAboutMoney
 
         }
 
-        private async Task SendEmailAsync()
+        private async Task<decimal> GetCurrencyRateYesterdayFromEURToBRLAsync(DateTime date)
+        {
+            try
+            {
+
+                var yesterday = date.AddDays(-1);
+
+                var yesterdayFormatted = yesterday.ToString("yyyy-MM-dd");
+
+                using var httpClient = new HttpClient();
+
+                var urlFromCurrenciYesterday = $"https://api.currencyapi.com/v3/historical?date={yesterdayFormatted}&apikey={_settings.ApiKey}&currencies=BRL&base_currency=EUR";
+
+                var responseFromCurrenciYesterday = await httpClient.GetStringAsync(urlFromCurrenciYesterday);
+
+                using var doc = JsonDocument.Parse(responseFromCurrenciYesterday);
+                var rate = doc.RootElement.GetProperty("data").GetProperty("BRL").GetProperty("value").GetDecimal();
+
+                return rate;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while trybg get actual currency. {ErrorMessage}", ex.Message);
+
+                throw;
+            }
+        }
+
+        private async Task SendEmailAsync(decimal todayCurrency, decimal yesterdayCurrency, DateTime dateTime)
         {
             var fromAddress = new MailAddress(_settings.SmtpFromEmail, "Cotação Euro");
             var toAddress = new MailAddress(_settings.SmtpToEmail);
@@ -142,10 +153,10 @@ namespace SendEmaiInfoAboutMoney
             <html>
               <body style='font-family: Arial, sans-serif; color: #333;'>
                 <h2 style='color: #0078D7;'>💶 Cotação do Euro</h2>
-                <p>O Euro hoje está mais barato, custando <strong style='color: green;'>R$ {newCurrency:F2}</strong>.</p>
-                <p>Ontem estava <strong style='color: red;'>R$ {oldCurrency:F2}</strong>.</p>
+                <p>O Euro hoje está mais barato, custando <strong style='color: green;'>R$ {todayCurrency:F2}</strong>.</p>
+                <p>Ontem estava <strong style='color: red;'>R$ {yesterdayCurrency:F2}</strong>.</p>
                 <hr />
-                <p style='font-size: 12px; color: #888;'>Atualizado em {DateTime.Now:dd/MM/yyyy HH:mm}</p>
+                <p style='font-size: 12px; color: #888;'>Atualizado em {dateTime:dd/MM/yyyy HH:mm}</p>
               </body>
             </html>";
 
