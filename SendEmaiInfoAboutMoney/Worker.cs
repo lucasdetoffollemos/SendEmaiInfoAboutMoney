@@ -143,7 +143,7 @@ namespace SendEmaiInfoAboutMoney
 
         private async Task SendEmailAsync(decimal todayCurrency, decimal yesterdayCurrency, DateTime dateTime)
         {
-            var fromAddress = new MailAddress(_settings.SmtpFromEmail, "Cotação Euro");
+            var fromAddress = new MailAddress(_settings.SmtpFromEmail, "Cotação Euro From Github");
             var toAddress = new MailAddress(_settings.SmtpToEmail);
             var fromPassword = _settings.SmtpPassword;
 
