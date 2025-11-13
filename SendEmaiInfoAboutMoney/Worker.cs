@@ -95,8 +95,6 @@ namespace SendEmaiInfoAboutMoney
             {
                 using var httpClient = new HttpClient();
 
-                _logger.LogInformation($"Api key: {_settings.ApiKey}");
-
                 var urlFromCurrenciToday = $"https://api.currencyapi.com/v3/latest?apikey={_settings.ApiKey}&currencies=BRL&base_currency=EUR";
 
                 var responseFromCurrenciToday = await httpClient.GetStringAsync(urlFromCurrenciToday);
@@ -145,11 +143,11 @@ namespace SendEmaiInfoAboutMoney
 
         private async Task SendEmailAsync(decimal todayCurrency, decimal yesterdayCurrency, DateTime dateTime)
         {
-            var fromAddress = new MailAddress(_settings.SmtpFromEmail, "Cotação Euro From Github");
+            var fromAddress = new MailAddress(_settings.SmtpFromEmail, "Cotação Euro");
             var toAddress = new MailAddress(_settings.SmtpToEmail);
             var fromPassword = _settings.SmtpPassword;
 
-            var subject = "COTAÇÃO EURO BAIXOU HOJE";
+            var subject = "COTAÇÃO EURO BAIXOU HOJE GITHUB";
 
             var body = $@"
             <html>
