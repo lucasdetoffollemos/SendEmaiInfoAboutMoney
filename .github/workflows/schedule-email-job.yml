@@ -14,5 +14,4 @@ jobs:
         env:
           TESTE: ${{ secrets.TESTE }}
         run: |
-          echo "Secret variable length: ${#TESTE}"
-          echo "First 2 characters (safe): ${TESTE:0:2}"
+          echo "Secret variable: ${TESTE}"
