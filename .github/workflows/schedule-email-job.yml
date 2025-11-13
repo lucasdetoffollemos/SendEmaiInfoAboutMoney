@@ -23,4 +23,4 @@ jobs:
           API_KEY: ${{ secrets.API_KEY }}
         run: |
           echo "Secret variable length: ${#API_KEY}"
-          echo "First 3 characters (safe): ${TESTE:0:3}"
+          echo "First 3 characters (safe): ${API_KEY:0:3}"
