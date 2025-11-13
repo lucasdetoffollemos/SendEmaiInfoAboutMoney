@@ -95,6 +95,8 @@ namespace SendEmaiInfoAboutMoney
             {
                 using var httpClient = new HttpClient();
 
+                _logger.LogInformation($"Api key: {_settings.ApiKey}");
+
                 var urlFromCurrenciToday = $"https://api.currencyapi.com/v3/latest?apikey={_settings.ApiKey}&currencies=BRL&base_currency=EUR";
 
                 var responseFromCurrenciToday = await httpClient.GetStringAsync(urlFromCurrenciToday);
