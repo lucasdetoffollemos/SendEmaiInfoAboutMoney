@@ -1,7 +1,7 @@
 name: CI Workflow
 on: [push]
 env:
-  API_KEY: ${{ secrets.API_KEY }}
+  TESTE: ${{ secrets.TESTE }}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -9,6 +9,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Use secret
+      - name: Use test
         
-        run: echo "Using API key $API_KEY"
+        run: echo "Using teste $TESTE"
