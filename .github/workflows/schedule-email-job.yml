@@ -1,15 +1,18 @@
 name: CI Workflow
+
 on: [push]
 
 jobs:
   build:
-    environment: Production
     runs-on: ubuntu-latest
+    environment: Production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Use TESTE
+      - name: Show secret usage test
         env:
           TESTE: ${{ secrets.TESTE }}
-        run: echo "Using API key: $TESTE"
+        run: |
+          echo "Secret variable length: ${#TESTE}"
+          echo "First 2 characters (safe): ${TESTE:0:2}"
