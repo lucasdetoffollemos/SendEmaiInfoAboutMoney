@@ -14,8 +14,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: set env secrets
+        
         env:
           SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
           SMTP_TO_EMAIL: ${{ secrets.SMTP_TO_EMAIL }}
