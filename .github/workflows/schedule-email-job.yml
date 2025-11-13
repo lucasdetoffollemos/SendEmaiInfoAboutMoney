@@ -3,6 +3,7 @@ on: [push]
 
 jobs:
   build:
+    environment: Production
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
