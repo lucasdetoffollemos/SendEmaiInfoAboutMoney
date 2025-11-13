@@ -15,6 +15,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: set env secrets
+        env:
+          SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
+          SMTP_TO_EMAIL: ${{ secrets.SMTP_TO_EMAIL }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          API_KEY: ${{ secrets.API_KEY }}
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -26,12 +33,5 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: set env secrets
-        env:
-          SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
-          SMTP_TO_EMAIL: ${{ secrets.SMTP_TO_EMAIL }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          API_KEY: ${{ secrets.API_KEY }}
-          
       - name: Run service
         run: dotnet run --project SendEmaiInfoAboutMoney/SendEmaiInfoAboutMoney.csproj --configuration Release
