@@ -24,7 +24,7 @@ jobs:
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
-        with:
+        env:
           SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
           SMTP_TO_EMAIL: ${{ secrets.SMTP_TO_EMAIL }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
