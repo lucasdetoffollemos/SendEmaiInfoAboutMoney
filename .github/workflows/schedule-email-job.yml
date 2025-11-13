@@ -11,4 +11,4 @@ jobs:
       - name: Use secret
         env:
           API_KEY: ${{ secrets.API_KEY }}
-        run: echo "Using API key: $API_KEY"
+        run: echo "Using API key"
