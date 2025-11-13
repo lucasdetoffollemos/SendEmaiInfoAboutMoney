@@ -10,5 +10,5 @@ jobs:
 
       - name: Use TESTE
         env:
-          API_KEY: ${{ secrets.TESTE }}
+          TESTE: ${{ secrets.TESTE }}
         run: echo "Using API key: $TESTE"
