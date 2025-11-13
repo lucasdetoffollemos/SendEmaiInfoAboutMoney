@@ -1,16 +1,34 @@
-name: CI Workflow
+name: Email Service Job
 
-on: [push]
+on:
+  schedule:
+    # vai rodar todo dia, exceto (domingo), as 8 da manhã em portugal (7 da manhã no utc)
+    #- cron: '0 7 * * 1-6'
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # allows manual trigger too
 
 jobs:
-  build:
+  run-service:
     runs-on: ubuntu-latest
+    environment: Production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Show secret usage test
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x' # or whatever version you use
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
         env:
-          TESTE: ${{ secrets.TESTE }}
-        run: |
-          echo "Secret variable: ${TESTE}"
+          SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
+          SMTP_TO_EMAIL: ${{ secrets.SMTP_TO_EMAIL }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          API_KEY: ${{ secrets.API_KEY }}
+      - name: Run service
+        run: dotnet run --project SendEmaiInfoAboutMoney/SendEmaiInfoAboutMoney.csproj --configuration Release
