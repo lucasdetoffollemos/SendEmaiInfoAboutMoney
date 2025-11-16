@@ -65,6 +65,7 @@ namespace SendEmaiInfoAboutMoney
             try
             {
                 actualCurrency = await GetCurrencyRateFromEURToBRLAsync();
+                actualCurrency = Math.Round(actualCurrency, 2);
             }
             catch (Exception ex)
             {
@@ -82,9 +83,10 @@ namespace SendEmaiInfoAboutMoney
             newCurrency = actualCurrency;
 
             //caso o valor antigo seja maior que o valor novo
+            //e não seja domingo
             //mandar email
             //setar o valor novo no antigo
-            if (oldCurrency > newCurrency)
+            if (oldCurrency > newCurrency && (!DateTime.Now.Day.Equals(DayOfWeek.Sunday)))
             {
                 _logger.LogInformation("New currency is less than the old currency, sending email...");
                 await SendEmailAsync();
@@ -95,6 +97,7 @@ namespace SendEmaiInfoAboutMoney
                 //fazer pegar o valor do dia e armazenar
                 _logger.LogInformation("New currency is greater or equal than the old currency, just updating value. Old value {oldValue}, new value {newValue}", oldCurrency, actualCurrency);
                 oldCurrency = actualCurrency;
+                oldCurrency = Math.Round(oldCurrency, 2);
             }
 
         }
@@ -123,6 +126,23 @@ namespace SendEmaiInfoAboutMoney
 
         }
 
+        /// <summary>
+        /// Asynchronously sends an HTML email notifying recipients that the EUR→BRL
+        /// exchange rate has dropped.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task"/> that completes when the email send operation finishes.
+        /// </returns>
+        /// <remarks>
+        /// Builds an HTML body that includes <c>newCurrency</c>, <c>oldCurrency</c> and
+        /// a timestamp. Configures an <see cref="SmtpClient"/> using SMTP settings from
+        /// <c>_settings</c> (host: smtp.gmail.com, port: 587, SSL enabled) and sends the
+        /// message with <see cref="SmtpClient.SendMailAsync(MailMessage, CancellationToken)"/>.
+        /// Progress and errors are logged via <c>_logger</c>.
+        /// </remarks>
+        /// <exception cref="Exception">
+        /// Any exception raised during SMTP configuration or send is logged and rethrown.
+        /// </exception>
         private async Task SendEmailAsync()
         {
             var fromAddress = new MailAddress(_settings.SmtpFromEmail, "Cotação Euro");
@@ -135,8 +155,8 @@ namespace SendEmaiInfoAboutMoney
             <html>
               <body style='font-family: Arial, sans-serif; color: #333;'>
                 <h2 style='color: #0078D7;'>💶 Cotação do Euro</h2>
-                <p>O Euro hoje está mais barato, custando <strong style='color: green;'>R$ {newCurrency:F2}</strong>.</p>
-                <p>Ontem estava <strong style='color: red;'>R$ {oldCurrency:F2}</strong>.</p>
+                <p>O Euro hoje está mais barato, custando <strong style='color: green;'>R$ {newCurrency}</strong>.</p>
+                <p>Ontem estava <strong style='color: red;'>R$ {oldCurrency}</strong>.</p>
                 <hr />
                 <p style='font-size: 12px; color: #888;'>Atualizado em {DateTime.Now:dd/MM/yyyy HH:mm}</p>
               </body>
