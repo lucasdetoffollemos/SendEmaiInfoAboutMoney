@@ -56,6 +56,7 @@ namespace SendEmaiInfoAboutMoney
             try
             {
                 todayCurrency = await GetCurrencyRateFromEURToBRLAsync();
+                todayCurrency = Math.Round(todayCurrency, 2);
             }
             catch (Exception ex)
             {
@@ -68,6 +69,7 @@ namespace SendEmaiInfoAboutMoney
             try
             {
                 yesterdayCurrency = await GetCurrencyRateYesterdayFromEURToBRLAsync(dateTime);
+                yesterdayCurrency = Math.Round(yesterdayCurrency, 2);
             }
             catch (Exception ex)
             {
@@ -153,8 +155,8 @@ namespace SendEmaiInfoAboutMoney
             <html>
               <body style='font-family: Arial, sans-serif; color: #333;'>
                 <h2 style='color: #0078D7;'>💶 Cotação do Euro</h2>
-                <p>O Euro hoje está mais barato, custando <strong style='color: green;'>R$ {todayCurrency:F2}</strong>.</p>
-                <p>Ontem estava <strong style='color: red;'>R$ {yesterdayCurrency:F2}</strong>.</p>
+                <p>O Euro hoje está mais barato, custando <strong style='color: green;'>R$ {todayCurrency}</strong>.</p>
+                <p>Ontem estava <strong style='color: red;'>R$ {yesterdayCurrency}</strong>.</p>
                 <hr />
                 <p style='font-size: 12px; color: #888;'>Atualizado em {dateTime:dd/MM/yyyy HH:mm}</p>
               </body>
