@@ -120,7 +120,7 @@ namespace SendEmaiInfoAboutMoney
             try
             {
 
-                var yesterday = date.AddDays(-1);
+                var yesterday = date.AddDays(-2);
 
                 var yesterdayFormatted = yesterday.ToString("yyyy-MM-dd");
 
